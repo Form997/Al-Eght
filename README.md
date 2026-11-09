@@ -31,6 +31,10 @@ AI giáo viên ảo, nhận diện giọng nói, lớp học trực tuyến và 
 - [Kiến trúc hệ thống](docs/architecture.md)
 - [Danh mục nguồn đầu nguồn](docs/source-register.md)
 - [Kế hoạch kiểm thử và nghiệm thu](docs/testing.md)
+- [Hướng dẫn sử dụng bảng tương tác](docs/user-guide.md)
+
+## Chạy ứng dụng
+Ứng dụng V1.0 là website tĩnh, không cần cài đặt gói phụ thuộc. Mở `index.html` để chạy thử hoặc triển khai bằng GitHub Pages. Dữ liệu bảng được lưu cục bộ trong trình duyệt.
 - [Nhật ký thay đổi](CHANGELOG.md)
 
 ## Nguyên tắc phát triển
