@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#10243a">
+  <meta name="description" content="Al Edu – không gian học tập và bảng tương tác giáo dục mở.">
+  <title>Al Edu | Không gian học tập</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="./" aria-label="Al Edu trang chủ"><span class="brand-mark">A</span><span><strong>Al Edu</strong><small>KHÔNG GIAN HỌC TẬP MỞ</small></span></a>
+    <div class="top-actions"><span class="save-state" id="saveState" role="status">Chưa có thay đổi</span><button class="button button-quiet" id="newBoard" type="button">Bảng mới</button><button class="button button-primary" id="saveBoard" type="button">Lưu bảng</button></div>
+  </header>
+  <main class="app-shell">
+    <aside class="sidebar" aria-label="Điều hướng">
+      <div class="side-label">KHÔNG GIAN</div>
+      <button class="nav-item active" type="button"><span aria-hidden="true">▦</span> Bảng tương tác</button>
+      <div class="side-divider"></div>
+      <div class="side-label">V1.0 FOUNDATION</div>
+      <div class="side-note">Nền tảng học tập đa lĩnh vực. Nội dung được lưu trên thiết bị này trong phiên bản khởi đầu.</div>
+      <div class="side-bottom"><span class="status-dot"></span> Chế độ lưu cục bộ</div>
+    </aside>
+    <section class="workspace" aria-label="Bảng tương tác Al Edu">
+      <div class="workspace-heading"><div><p class="eyebrow">KHÔNG GIAN HỌC TẬP</p><h1>Bảng tương tác</h1><p class="subheading">Ghi chép, minh họa và phát triển ý tưởng học tập.</p></div><div class="board-meta"><span class="live-dot"></span><span id="boardStatus">Bảng sẵn sàng</span></div></div>
+      <section class="toolbar" aria-label="Công cụ bảng">
+        <div class="tool-group" role="group" aria-label="Công cụ vẽ">
+          <button class="tool-button selected" data-tool="pen" type="button" aria-pressed="true" title="Bút vẽ">✎ <span>Bút</span></button>
+          <button class="tool-button" data-tool="eraser" type="button" aria-pressed="false" title="Tẩy">⌫ <span>Tẩy</span></button>
+        </div>
+        <span class="toolbar-divider"></span>
+        <label class="control-label" for="inkColor">Màu nét</label><input id="inkColor" class="color-input" type="color" value="#183b5b" aria-label="Chọn màu nét">
+        <label class="control-label" for="inkSize">Độ dày</label><input id="inkSize" class="size-input" type="range" min="1" max="24" value="4"><output id="sizeValue">4 px</output>
+        <span class="toolbar-spacer"></span>
+        <button class="icon-button" id="undo" type="button" title="Hoàn tác" aria-label="Hoàn tác" disabled>↶</button>
+        <button class="icon-button" id="redo" type="button" title="Làm lại" aria-label="Làm lại" disabled>↷</button>
+        <button class="button button-quiet clear-button" id="clearBoard" type="button">Xóa bảng</button>
+      </section>
+      <div class="canvas-frame"><div class="canvas-caption"><span>TRANG 01</span><span>Vùng làm việc tự do</span></div><canvas id="board" aria-label="Vùng bảng trắng. Dùng chuột, bút hoặc ngón tay để viết và vẽ." tabindex="0"></canvas><div class="canvas-hint" id="canvasHint">Bắt đầu viết hoặc vẽ trên bảng</div></div>
+      <footer class="workspace-footer"><span>Al Edu V1.0 · Bảng tương tác cơ bản</span><span>Dữ liệu bảng được lưu trong trình duyệt của thiết bị.</span></footer>
+    </section>
+  </main>
+  <script src="app.js" defer></script>
+</body>
+</html>
