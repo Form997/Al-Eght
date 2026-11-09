@@ -15,8 +15,25 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Check JavaScript syntax
+        run: node --check app.js
+      - name: Check required application files
+        run: |
+          test -s index.html
+          test -s styles.css
+          test -s app.js
+          grep -q 'id="view-spaces"' index.html
+          grep -q 'id="view-library"' index.html
+          grep -q 'id="view-board"' index.html
+          grep -q 'schemaVersion' app.js
   build:
     runs-on: ubuntu-latest
+    needs: validate
     steps:
       - name: Checkout
         uses: actions/checkout@v4
