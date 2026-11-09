@@ -10,7 +10,7 @@
 - Thư viện học liệu: mô tả, loại, lĩnh vực, tác giả/cơ quan, ngôn ngữ, nguồn, ngày xuất bản, phiên bản, giấy phép và trạng thái bằng chứng.
 - Bảng tương tác: bút, tẩy, màu, độ dày, hoàn tác/làm lại, lưu và xuất PNG.
 - Sao lưu và khôi phục dữ liệu không gian, học liệu và bảng bằng JSON có phiên bản.
-- Giao diện đáp ứng cho màn hình lớn và điện thoại.
+- Giao diện đáp ứng cho Android, iOS, Windows, macOS và Linux thông qua trình duyệt hiện đại; có điều chỉnh vùng an toàn iPhone/iPad, cảm ứng, bàn phím, màn hình nhỏ, xoay ngang và chế độ giảm chuyển động. Đây là mục tiêu tương thích giao diện, chưa phải chứng nhận kiểm thử mọi thiết bị/trình duyệt.
 
 ## Chạy ứng dụng
 Không cần cài thư viện. Mở index.html bằng trình duyệt hoặc triển khai thư mục gốc qua GitHub Pages.
