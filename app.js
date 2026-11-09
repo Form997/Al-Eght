@@ -1,11 +1,11 @@
 (()=>{"use strict";
 const $=id=>document.getElementById(id),DB="al-edu-v1-data",BK="al-edu-v1-whiteboard",VERSION=1;
-const state={spaces:[],resources:[],activeSpace:null};
+const state={spaces:[],resources:[],activeSpace:null,dirty:false};
 const statuses={unreviewed:"Chưa rà soát","source-linked":"Đã ghi nguồn",reviewed:"Đã rà soát",verified:"Đã xác minh",disputed:"Có tranh luận",deprecated:"Ngừng khuyến nghị"};
 const types={article:"Bài viết",book:"Sách",video:"Video",course:"Khóa học",dataset:"Bộ dữ liệu",standard:"Tiêu chuẩn",other:"Khác"};
 let toastTimer;
 function toast(s){$("toast").textContent=s;$("toast").classList.add("show");clearTimeout(toastTimer);toastTimer=setTimeout(()=>$("toast").classList.remove("show"),2400)}
-function saveData(){try{localStorage.setItem(DB,JSON.stringify({schemaVersion:VERSION,updatedAt:new Date().toISOString(),spaces:state.spaces,resources:state.resources}));$("saveState").textContent="Đã lưu trên thiết bị";return true}catch{$("saveState").textContent="Lỗi lưu";toast("Không lưu được. Hãy sao lưu dữ liệu và kiểm tra dung lượng.");return false}}
+function saveData(){try{localStorage.setItem(DB,JSON.stringify({schemaVersion:VERSION,updatedAt:new Date().toISOString(),spaces:state.spaces,resources:state.resources}));state.dirty=false;$("saveState").textContent="Đã lưu trên thiết bị";return true}catch{state.dirty=true;$("saveState").textContent="Lỗi lưu";toast("Không lưu được. Hãy sao lưu dữ liệu và kiểm tra dung lượng.");return false}}
 function node(tag,cls,txt){const n=document.createElement(tag);if(cls)n.className=cls;if(txt!==undefined)n.textContent=txt;return n}
 function btn(txt,act,id){const b=node("button","",txt);b.type="button";b.dataset.action=act;b.dataset.id=id;return b}
 function empty(host,msg){host.replaceChildren(node("div","empty",msg))}
