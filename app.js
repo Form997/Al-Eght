@@ -32,19 +32,16 @@
     const rect = canvas.getBoundingClientRect();
     if (!rect.width || !rect.height) return;
     const oldWidth = cssWidth, oldHeight = cssHeight;
-    const ratio = Math.max(1, Math.min(window.devicePixelRatio || 1, 2));
-    const snapshot = oldWidth && oldHeight ? canvas.toDataURL("image/png") : null;
     cssWidth = rect.width; cssHeight = rect.height;
+    if (oldWidth && oldHeight && (oldWidth !== cssWidth || oldHeight !== cssHeight)) {
+      const sx = cssWidth / oldWidth, sy = cssHeight / oldHeight;
+      strokes.forEach(stroke => stroke.points.forEach(point => { point.x *= sx; point.y *= sy; }));
+      if (currentStroke) currentStroke.points.forEach(point => { point.x *= sx; point.y *= sy; });
+    }
+    const ratio = Math.max(1, Math.min(window.devicePixelRatio || 1, 2));
     canvas.width = Math.round(cssWidth * ratio);
     canvas.height = Math.round(cssHeight * ratio);
-    ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
-    ctx.fillStyle = "#ffffff";
-    ctx.fillRect(0, 0, cssWidth, cssHeight);
-    if (snapshot && oldWidth && oldHeight) {
-      const image = new Image();
-      image.onload = () => { ctx.drawImage(image, 0, 0, cssWidth, cssHeight); };
-      image.src = snapshot;
-    } else render();
+    render();
   }
   function render() {
     ctx.save();
@@ -219,6 +216,7 @@
   document.getElementById("saveBoard").addEventListener("click", save);
   document.getElementById("newBoard").addEventListener("click", newBoard);
   document.getElementById("clearBoard").addEventListener("click", clearBoard);
+  document.getElementById("exportPng").addEventListener("click", exportPng);
   window.addEventListener("resize", resizeCanvas);
   window.addEventListener("beforeunload", event => {
     if (dirty) { event.preventDefault(); event.returnValue = ""; }
