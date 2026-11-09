@@ -72,7 +72,7 @@ try {
 
   page.once("dialog", dialog => dialog.accept());
   await page.locator('#resourceList button[data-action="delete-resource"]').click();
-  await page.getByText("Không có học liệu phù hợp bộ lọc.").waitFor();
+  await page.getByText("Thư viện đang trống. Hãy thêm học liệu có nguồn.").waitFor();
   page.once("dialog", dialog => dialog.accept());
   await page.locator("#importData").setInputFiles({
     name: "al-edu-backup.json",
