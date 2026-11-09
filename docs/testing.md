@@ -1,29 +1,28 @@
-# Kiểm thử và nghiệm thu V1.0
+# Kế hoạch kiểm thử và nghiệm thu Al Edu V1
 
-## 1. Nguyên tắc
-Không xem việc chạy được trên máy phát triển là bằng chứng đủ để phát hành. Mỗi yêu cầu phải liên kết với ít nhất một trường hợp kiểm thử.
+## Kiểm tra tĩnh
+- Kiểm tra cú pháp JavaScript bằng lệnh node --check app.js.
+- Kiểm tra HTML hợp lệ và đường dẫn tài nguyên.
+- Rà soát không dùng innerHTML cho dữ liệu người dùng.
+- Kiểm tra URL nguồn chỉ chấp nhận HTTP/HTTPS.
 
-## 2. Các tầng kiểm thử
-- **Unit:** quy tắc nghiệp vụ, mô hình dữ liệu, kiểm tra đơn vị và thứ nguyên.
-- **Integration:** lưu/mở dữ liệu, quyền truy cập, trao đổi giữa các mô-đun.
-- **End-to-end:** luồng người dùng từ tạo không gian học đến lưu và mở lại bảng.
-- **Accessibility:** bàn phím, tiêu điểm, nhãn, tương phản, phóng to và công nghệ trợ giúp.
-- **Responsive/device:** kích thước màn hình, cảm ứng, chuột và bút khi có thiết bị thử.
-- **Security:** xác thực, phân quyền, kiểm tra đầu vào, rò rỉ dữ liệu và cấu hình.
-- **Recovery:** lỗi mạng, lưu thất bại, tải lại trang và phục hồi dữ liệu.
+## Kiểm thử chức năng
+| Khu vực | Ca kiểm thử | Kết quả mong đợi |
+|---|---|---|
+| Điều hướng | Chuyển qua ba khu vực | Chỉ hiển thị đúng khu vực |
+| Không gian | Tạo/sửa/xóa/tìm kiếm | Danh sách và thống kê cập nhật; xóa có xác nhận |
+| Học liệu | Thêm/sửa/xóa/tìm kiếm/lọc | Metadata hiển thị đúng; còn sau tải lại |
+| Nguồn | URL sai và URL HTTPS hợp lệ | URL sai bị từ chối; không tự gắn nhãn xác minh |
+| Bảng | Vẽ, tẩy, undo, redo, lưu, tải lại | Nét và thứ tự lịch sử chính xác |
+| Sao lưu | Xuất rồi nhập JSON | Khôi phục đúng không gian, học liệu và bảng |
+| Dữ liệu sai | JSON lỗi, sai schema, ID trùng | Từ chối; không ghi đè dữ liệu hiện có |
+| Responsive | Màn hình hẹp và rộng | Không tràn ngang; nút thao tác dùng được |
 
-## 3. Tiêu chí nghiệm thu
-| Nhóm | Điều kiện tối thiểu |
-|---|---|
-| Chức năng | Tất cả yêu cầu bắt buộc có kết quả kiểm thử đạt |
-| Dữ liệu | Không mất hoặc biến dạng dữ liệu trong luồng đã xác định |
-| Tiếp cận | Không có lỗi nghiêm trọng chưa xử lý trong phạm vi đánh giá |
-| Bảo mật | Không có lỗi nghiêm trọng/cao chưa xử lý |
-| Hiệu năng | Đạt ngưỡng được xác định bằng thiết bị và dữ liệu thử nghiệm |
-| Tài liệu | Hướng dẫn cài đặt, sử dụng, cấu hình và khôi phục được cập nhật |
+## Kiểm thử tiếp cận
+- Điều hướng toàn bộ bằng bàn phím.
+- Kiểm tra thứ tự focus, nhãn biểu mẫu và thông báo trạng thái.
+- Kiểm tra tương phản, zoom 200%, trình đọc màn hình và cảm ứng.
+- Đối chiếu WCAG 2.2 AA; chưa tuyên bố đạt chuẩn nếu chưa có báo cáo.
 
-## 4. Báo cáo kiểm thử
-Mỗi báo cáo ghi: mã bản dựng/commit, môi trường, thiết bị/trình duyệt, dữ liệu thử, bước tái hiện, kết quả mong đợi, kết quả thực tế, ảnh/log minh chứng, mức độ lỗi và người xác nhận.
-
-## 5. Điều kiện phát hành
-Chỉ gắn nhãn phát hành khi toàn bộ tiêu chí bắt buộc đạt, các lỗi còn lại được phân loại và chấp thuận rõ ràng, tài liệu phát hành và phương án quay lui đã sẵn sàng.
+## Cổng nghiệm thu
+Chỉ phát hành ổn định sau khi kiểm thử trên trình duyệt mục tiêu, Android/iOS và máy tính; xác nhận khôi phục dữ liệu; kiểm tra lỗi console; rà soát bảo mật và đánh giá tiếp cận. Bản dev không đồng nghĩa bản phát hành ổn định.
