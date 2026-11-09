@@ -1,46 +1,11 @@
 <!doctype html>
-<html lang="vi">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#10243a">
-  <meta name="description" content="Al Edu – không gian học tập và bảng tương tác giáo dục mở.">
-  <title>Al Edu | Không gian học tập</title>
-  <link rel="stylesheet" href="styles.css">
-</head>
-<body>
-  <header class="topbar">
-    <a class="brand" href="./" aria-label="Al Edu trang chủ"><span class="brand-mark">A</span><span><strong>Al Edu</strong><small>KHÔNG GIAN HỌC TẬP MỞ</small></span></a>
-    <div class="top-actions"><span class="save-state" id="saveState" role="status">Chưa có thay đổi</span><button class="button button-quiet" id="newBoard" type="button">Bảng mới</button><button class="button button-primary" id="saveBoard" type="button">Lưu bảng</button></div>
-  </header>
-  <main class="app-shell">
-    <aside class="sidebar" aria-label="Điều hướng">
-      <div class="side-label">KHÔNG GIAN</div>
-      <button class="nav-item active" type="button"><span aria-hidden="true">▦</span> Bảng tương tác</button>
-      <div class="side-divider"></div>
-      <div class="side-label">V1.0 FOUNDATION</div>
-      <div class="side-note">Nền tảng học tập đa lĩnh vực. Nội dung được lưu trên thiết bị này trong phiên bản khởi đầu.</div>
-      <div class="side-bottom"><span class="status-dot"></span> Chế độ lưu cục bộ</div>
-    </aside>
-    <section class="workspace" aria-label="Bảng tương tác Al Edu">
-      <div class="workspace-heading"><div><p class="eyebrow">KHÔNG GIAN HỌC TẬP</p><h1>Bảng tương tác</h1><p class="subheading">Ghi chép, minh họa và phát triển ý tưởng học tập.</p></div><div class="board-meta"><span class="live-dot"></span><span id="boardStatus">Bảng sẵn sàng</span></div></div>
-      <section class="toolbar" aria-label="Công cụ bảng">
-        <div class="tool-group" role="group" aria-label="Công cụ vẽ">
-          <button class="tool-button selected" data-tool="pen" type="button" aria-pressed="true" title="Bút vẽ">✎ <span>Bút</span></button>
-          <button class="tool-button" data-tool="eraser" type="button" aria-pressed="false" title="Tẩy">⌫ <span>Tẩy</span></button>
-        </div>
-        <span class="toolbar-divider"></span>
-        <label class="control-label" for="inkColor">Màu nét</label><input id="inkColor" class="color-input" type="color" value="#183b5b" aria-label="Chọn màu nét">
-        <label class="control-label" for="inkSize">Độ dày</label><input id="inkSize" class="size-input" type="range" min="1" max="24" value="4"><output id="sizeValue">4 px</output>
-        <span class="toolbar-spacer"></span>
-        <button class="icon-button" id="undo" type="button" title="Hoàn tác" aria-label="Hoàn tác" disabled>↶</button>
-        <button class="icon-button" id="redo" type="button" title="Làm lại" aria-label="Làm lại" disabled>↷</button>
-        <button class="button button-quiet" id="exportPng" type="button">Xuất PNG</button><button class="button button-quiet clear-button" id="clearBoard" type="button">Xóa bảng</button>
-      </section>
-      <div class="canvas-frame"><div class="canvas-caption"><span>TRANG 01</span><span>Vùng làm việc tự do</span></div><canvas id="board" aria-label="Vùng bảng trắng. Dùng chuột, bút hoặc ngón tay để viết và vẽ." tabindex="0"></canvas><div class="canvas-hint" id="canvasHint">Bắt đầu viết hoặc vẽ trên bảng</div></div>
-      <footer class="workspace-footer"><span>Al Edu V1.0 · Bảng tương tác cơ bản</span><span>Dữ liệu bảng được lưu trong trình duyệt của thiết bị.</span></footer>
-    </section>
-  </main>
-  <script src="app.js" defer></script>
-</body>
-</html>
+<html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#10243a"><meta name="description" content="Al Edu – nền tảng học tập mở, quản lý học liệu có nguồn và bảng tương tác."><title>Al Edu | Không gian học tập</title><link rel="stylesheet" href="styles.css"></head>
+<body><header class="topbar"><a class="brand" href="./"><span class="brand-mark">A</span><span><strong>Al Edu</strong><small>KHÔNG GIAN HỌC TẬP MỞ</small></span></a><div class="top-actions"><span id="saveState" role="status">Lưu trên thiết bị</span><button class="button" id="exportData">Sao lưu JSON</button><label class="button file-label" for="importData">Khôi phục</label><input id="importData" class="sr-only" type="file" accept="application/json"></div></header>
+<div class="app-shell"><aside class="sidebar"><p class="side-label">KHÔNG GIAN HỌC TẬP</p><nav><button class="nav-item active" data-view="spaces">▦ Không gian học</button><button class="nav-item" data-view="library">▤ Thư viện học liệu</button><button class="nav-item" data-view="board">✎ Bảng tương tác</button></nav><hr><p class="side-note">Tri thức đa lĩnh vực, có nguồn gốc và trạng thái rà soát rõ ràng.</p><p class="side-bottom">● Lưu cục bộ trên thiết bị</p></aside>
+<main class="workspace">
+<section class="view active" id="view-spaces"><div class="heading"><div><p class="eyebrow">TỔ CHỨC VIỆC HỌC</p><h1>Không gian học tập</h1><p class="muted">Tạo khu vực học theo chủ đề, môn học hoặc mục tiêu.</p></div><button class="primary" id="addSpace">＋ Tạo không gian</button></div><div class="stats"><article><span>Không gian</span><b id="spaceCount">0</b></article><article><span>Học liệu</span><b id="resourceCount">0</b></article><article><span>Nguồn đã rà soát</span><b id="reviewedCount">0</b></article></div><div class="section-head"><h2>Các không gian của tôi</h2><input id="spaceSearch" placeholder="Tìm không gian…" aria-label="Tìm không gian"></div><div id="spaceList" class="cards" aria-live="polite"></div></section>
+<section class="view" id="view-library" hidden><div class="heading"><div><p class="eyebrow">TRI THỨC CÓ NGUỒN GỐC</p><h1>Thư viện học liệu</h1><p class="muted">Quản lý tài liệu, liên kết và siêu dữ liệu để tra cứu.</p></div><button class="primary" id="addResource">＋ Thêm học liệu</button></div><div class="filters"><input id="resourceSearch" placeholder="Tìm tên, tác giả, lĩnh vực…" aria-label="Tìm học liệu"><select id="statusFilter" aria-label="Lọc trạng thái"><option value="">Mọi trạng thái</option><option value="unreviewed">Chưa rà soát</option><option value="source-linked">Đã ghi nguồn</option><option value="reviewed">Đã rà soát</option><option value="verified">Đã xác minh</option><option value="disputed">Có tranh luận</option><option value="deprecated">Ngừng khuyến nghị</option></select><select id="typeFilter" aria-label="Lọc loại"><option value="">Mọi loại</option><option value="article">Bài viết</option><option value="book">Sách</option><option value="video">Video</option><option value="course">Khóa học</option><option value="dataset">Bộ dữ liệu</option><option value="standard">Tiêu chuẩn</option><option value="other">Khác</option></select></div><div id="resourceList" class="resource-list" aria-live="polite"></div></section>
+<section class="view" id="view-board" hidden><div class="heading"><div><p class="eyebrow">GHI CHÉP VÀ MINH HỌA</p><h1>Bảng tương tác</h1><p class="muted">Viết, vẽ và lưu ý tưởng học tập.</p></div><span id="boardStatus" class="muted">Bảng sẵn sàng</span></div><div class="toolbar"><button class="tool selected" data-tool="pen" aria-pressed="true">Bút</button><button class="tool" data-tool="eraser" aria-pressed="false">Tẩy</button><label for="inkColor">Màu</label><input id="inkColor" type="color" value="#183b5b"><label for="inkSize">Độ dày</label><input id="inkSize" type="range" min="1" max="24" value="4"><output id="sizeValue">4 px</output><button id="undo" disabled>Hoàn tác</button><button id="redo" disabled>Làm lại</button><button id="saveBoard">Lưu bảng</button><button id="exportPng">Xuất PNG</button><button id="clearBoard">Xóa bảng</button></div><div class="canvas-frame"><canvas id="board" aria-label="Bảng trắng. Dùng chuột, bút hoặc ngón tay để viết và vẽ." tabindex="0"></canvas><span id="canvasHint">Bắt đầu viết hoặc vẽ trên bảng</span></div></section>
+</main></div>
+<dialog id="spaceDialog"><form id="spaceForm"><h2 id="spaceDialogTitle">Tạo không gian</h2><input id="spaceId" type="hidden"><label>Tên không gian<input id="spaceName" maxlength="100" required></label><label>Mô tả<textarea id="spaceDescription" maxlength="500" rows="3"></textarea></label><label>Lĩnh vực<input id="spaceDomain" maxlength="80"></label><div class="dialog-actions"><button type="button" data-close="spaceDialog">Hủy</button><button class="primary" type="submit">Lưu</button></div></form></dialog>
+<dialog id="resourceDialog"><form id="resourceForm"><h2 id="resourceDialogTitle">Thêm học liệu</h2><input id="resourceId" type="hidden"><label>Tiêu đề<input id="resourceTitle" maxlength="180" required></label><div class="form-grid"><label>Loại<select id="resourceType"><option value="article">Bài viết</option><option value="book">Sách</option><option value="video">Video</option><option value="course">Khóa học</option><option value="dataset">Bộ dữ liệu</option><option value="standard">Tiêu chuẩn</option><option value="other">Khác</option></select></label><label>Lĩnh vực<input id="resourceDomain" maxlength="100"></label></div><label>Mô tả<textarea id="resourceDescription" rows="2" maxlength="700"></textarea></label><div class="form-grid"><label>Tác giả / cơ quan<input id="resourceAuthor" maxlength="160"></label><label>Ngôn ngữ<input id="resourceLanguage" maxlength="40" value="vi"></label></div><label>Đường dẫn nguồn<input id="resourceUrl" type="url" maxlength="1000" placeholder="https://…"></label><div class="form-grid"><label>Ngày xuất bản<input id="resourcePublished" type="date"></label><label>Phiên bản<input id="resourceVersion" maxlength="60"></label></div><label>Giấy phép<input id="resourceLicense" maxlength="120"></label><label>Trạng thái bằng chứng<select id="resourceStatus"><option value="unreviewed">Chưa rà soát</option><option value="source-linked">Đã ghi nguồn</option><option value="reviewed">Đã rà soát</option><option value="verified">Đã xác minh</option><option value="disputed">Có tranh luận</option><option value="deprecated">Ngừng khuyến nghị</option></select></label><p class="form-help">Chỉ chọn “Đã xác minh” sau khi đã đối chiếu nội dung với nguồn đáng tin cậy. Ứng dụng không tự xác minh.</p><div class="dialog-actions"><button type="button" data-close="resourceDialog">Hủy</button><button class="primary" type="submit">Lưu học liệu</button></div></form></dialog><div id="toast" role="status" aria-live="polite"></div><script src="app.js" defer></script></body></html>
