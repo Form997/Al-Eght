@@ -10,6 +10,12 @@ Mọi thay đổi đáng kể được ghi theo phiên bản, ngày, phạm vi v
 - Xây dựng mô hình tri thức liên ngành, siêu dữ liệu và trạng thái bằng chứng.
 - Ghi nhận kiến trúc mô-đun, danh mục nguồn đầu nguồn và chiến lược nghiệm thu.
 
+### Ứng dụng đầu tiên
+- Bổ sung giao diện web đáp ứng cho điện thoại và máy tính.
+- Triển khai bảng vẽ bằng Pointer Events, hỗ trợ chuột và cảm ứng.
+- Bổ sung bút, tẩy, màu, độ dày nét, hoàn tác/làm lại, lưu cục bộ và xuất PNG.
+- Bổ sung hướng dẫn sử dụng và quy trình triển khai GitHub Pages.
+
 ### Trạng thái
 - Đây là bản nền tảng tài liệu, chưa phải bản phát hành phần mềm.
 - Chưa có chức năng giao diện hoặc nghiệp vụ nào được tuyên bố hoàn thành.
