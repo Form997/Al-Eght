@@ -25,6 +25,8 @@ Các phép thử trình duyệt là kiểm thử tự động trên môi trườ
 - Linux: Firefox và Chromium; kiểm tra bàn phím, font hệ thống, tải tệp và bảng vẽ.
 - Kích thước tham chiếu: 320, 360, 390, 768, 1024, 1280 và 1440 CSS px; cả dọc, ngang và zoom 200%.
 
+Biểu mẫu từng bước, ưu tiên Samsung Galaxy A05: [docs/real-device-acceptance.md](real-device-acceptance.md).
+
 ## 4. Kiểm thử tiếp cận
 - Điều hướng toàn bộ bằng bàn phím.
 - Kiểm tra thứ tự focus, nhãn biểu mẫu và thông báo trạng thái.
