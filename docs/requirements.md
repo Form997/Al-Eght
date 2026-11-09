@@ -25,6 +25,11 @@ Vai trò có thể được một người dùng đảm nhiệm đồng thời; 
 | FR-09 | Xử lý lỗi | Hiển thị thông báo dễ hiểu; không âm thầm làm mất dữ liệu |
 | FR-10 | Tiếp cận | Có nhãn điều khiển, thứ tự tiêu điểm hợp lý, tương phản và thao tác bàn phím |
 
+### Trạng thái triển khai hiện tại
+- Đã triển khai bảng vẽ cơ bản, bút/tẩy, chọn màu/độ dày, hoàn tác/làm lại, lưu cục bộ và xuất PNG.
+- FR-02, FR-03, FR-07 và FR-08 ở phạm vi quản lý dữ liệu/học liệu tổng quát chưa được nghiệm thu đầy đủ. Xuất PNG chỉ đáp ứng xuất ảnh bảng, không thay thế xuất toàn bộ dữ liệu người dùng.
+- FR-10 mới là mục tiêu thiết kế; chưa có báo cáo đánh giá WCAG 2.2.
+
 ## 4. Yêu cầu phi chức năng
 - **Khả năng sử dụng:** giao diện nhất quán, phản hồi rõ trạng thái thao tác.
 - **Tương thích:** thiết kế đáp ứng cho điện thoại, máy tính bảng, máy tính và màn hình cảm ứng.
