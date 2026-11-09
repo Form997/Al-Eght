@@ -1,227 +1,52 @@
-(() => {
-  "use strict";
-  const canvas = document.getElementById("board");
-  const ctx = canvas.getContext("2d", { alpha: false });
-  const colorInput = document.getElementById("inkColor");
-  const sizeInput = document.getElementById("inkSize");
-  const sizeValue = document.getElementById("sizeValue");
-  const saveState = document.getElementById("saveState");
-  const hint = document.getElementById("canvasHint");
-  const undoButton = document.getElementById("undo");
-  const redoButton = document.getElementById("redo");
-  const STORAGE_KEY = "al-edu-v1-whiteboard";
-  const HISTORY_LIMIT = 40;
-  let tool = "pen";
-  let drawing = false;
-  let activePointer = null;
-  let history = [];
-  let historyIndex = -1;
-  let strokes = [];
-  let currentStroke = null;
-  let saveTimer = null;
-  let dirty = false;
-  let cssWidth = 0;
-  let cssHeight = 0;
-
-  function setStatus(message) { saveState.textContent = message; }
-  function setDirty(value) {
-    dirty = value;
-    if (value) setStatus("Có thay đổi chưa lưu");
-  }
-  function resizeCanvas() {
-    const rect = canvas.getBoundingClientRect();
-    if (!rect.width || !rect.height) return;
-    const oldWidth = cssWidth, oldHeight = cssHeight;
-    cssWidth = rect.width; cssHeight = rect.height;
-    if (oldWidth && oldHeight && (oldWidth !== cssWidth || oldHeight !== cssHeight)) {
-      const sx = cssWidth / oldWidth, sy = cssHeight / oldHeight;
-      strokes.forEach(stroke => stroke.points.forEach(point => { point.x *= sx; point.y *= sy; }));
-      if (currentStroke) currentStroke.points.forEach(point => { point.x *= sx; point.y *= sy; });
-    }
-    const ratio = Math.max(1, Math.min(window.devicePixelRatio || 1, 2));
-    canvas.width = Math.round(cssWidth * ratio);
-    canvas.height = Math.round(cssHeight * ratio);
-    render();
-  }
-  function render() {
-    ctx.save();
-    ctx.setTransform(1, 0, 0, 1, 0, 0);
-    ctx.fillStyle = "#ffffff";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    ctx.restore();
-    ctx.setTransform(canvas.width / cssWidth, 0, 0, canvas.height / cssHeight, 0, 0);
-    for (const stroke of strokes) drawStroke(stroke);
-    if (currentStroke) drawStroke(currentStroke);
-    hint.classList.toggle("hidden", strokes.length > 0 || !!currentStroke);
-    updateHistoryButtons();
-  }
-  function drawStroke(stroke) {
-    const points = stroke.points || [];
-    if (!points.length) return;
-    ctx.save();
-    ctx.globalCompositeOperation = stroke.tool === "eraser" ? "destination-out" : "source-over";
-    ctx.strokeStyle = stroke.color;
-    ctx.fillStyle = stroke.color;
-    ctx.lineWidth = stroke.width;
-    ctx.lineCap = "round";
-    ctx.lineJoin = "round";
-    if (points.length === 1) {
-      ctx.beginPath();
-      ctx.arc(points[0].x, points[0].y, stroke.width / 2, 0, Math.PI * 2);
-      ctx.fill();
-    } else {
-      ctx.beginPath();
-      ctx.moveTo(points[0].x, points[0].y);
-      for (let i = 1; i < points.length; i++) ctx.lineTo(points[i].x, points[i].y);
-      ctx.stroke();
-    }
-    ctx.restore();
-  }
-  function snapshotHistory() {
-    history = history.slice(0, historyIndex + 1);
-    history.push(JSON.stringify(strokes));
-    if (history.length > HISTORY_LIMIT) history.shift();
-    historyIndex = history.length - 1;
-    updateHistoryButtons();
-  }
-  function updateHistoryButtons() {
-    undoButton.disabled = historyIndex <= 0;
-    redoButton.disabled = historyIndex < 0 || historyIndex >= history.length - 1;
-  }
-  function pointFromEvent(event) {
-    const rect = canvas.getBoundingClientRect();
-    return { x: Math.max(0, Math.min(rect.width, event.clientX - rect.left)), y: Math.max(0, Math.min(rect.height, event.clientY - rect.top)) };
-  }
-  function beginStroke(event) {
-    if (event.button !== undefined && event.button !== 0) return;
-    event.preventDefault();
-    canvas.setPointerCapture(event.pointerId);
-    drawing = true;
-    activePointer = event.pointerId;
-    const width = Number(sizeInput.value);
-    currentStroke = { tool, color: colorInput.value, width: tool === "eraser" ? Math.max(12, width * 3) : width, points: [pointFromEvent(event)] };
-    render();
-  }
-  function moveStroke(event) {
-    if (!drawing || event.pointerId !== activePointer || !currentStroke) return;
-    event.preventDefault();
-    currentStroke.points.push(pointFromEvent(event));
-    render();
-  }
-  function endStroke(event) {
-    if (!drawing || event.pointerId !== activePointer) return;
-    drawing = false;
-    activePointer = null;
-    if (currentStroke && currentStroke.points.length) {
-      strokes.push(currentStroke);
-      currentStroke = null;
-      snapshotHistory();
-      render();
-      setDirty(true);
-      scheduleAutosave();
-    }
-  }
-  function undo() {
-    if (historyIndex <= 0) return;
-    historyIndex--;
-    strokes = JSON.parse(history[historyIndex]);
-    render(); setDirty(true); scheduleAutosave();
-  }
-  function redo() {
-    if (historyIndex >= history.length - 1) return;
-    historyIndex++;
-    strokes = JSON.parse(history[historyIndex]);
-    render(); setDirty(true); scheduleAutosave();
-  }
-  function save() {
-    try {
-      const payload = { schemaVersion: 1, updatedAt: new Date().toISOString(), strokes };
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
-      dirty = false;
-      setStatus("Đã lưu trên thiết bị");
-      document.getElementById("boardStatus").textContent = "Đã lưu";
-      return true;
-    } catch (error) {
-      setStatus("Không thể lưu – bộ nhớ có thể đã đầy");
-      document.getElementById("boardStatus").textContent = "Lỗi lưu dữ liệu";
-      return false;
-    }
-  }
-  function load() {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (!raw) return false;
-      const data = JSON.parse(raw);
-      if (!data || data.schemaVersion !== 1 || !Array.isArray(data.strokes)) return false;
-      strokes = data.strokes.filter(s => s && Array.isArray(s.points) && typeof s.width === "number");
-      history = [JSON.stringify(strokes)];
-      historyIndex = 0;
-      render();
-      setStatus("Đã khôi phục bảng đã lưu");
-      return true;
-    } catch (error) {
-      setStatus("Không đọc được dữ liệu đã lưu");
-      return false;
-    }
-  }
-  function scheduleAutosave() {
-    clearTimeout(saveTimer);
-    saveTimer = setTimeout(save, 1200);
-  }
-  function newBoard() {
-    if (dirty && !window.confirm("Bảng có thay đổi chưa lưu. Tạo bảng mới và bỏ các thay đổi này?")) return;
-    strokes = [];
-    history = [];
-    historyIndex = -1;
-    snapshotHistory();
-    render();
-    setDirty(true);
-    scheduleAutosave();
-  }
-  function clearBoard() {
-    if (!strokes.length) return;
-    if (!window.confirm("Xóa toàn bộ nội dung trên bảng?")) return;
-    strokes = [];
-    snapshotHistory();
-    render();
-    setDirty(true);
-    scheduleAutosave();
-  }
-  function exportPng() {
-    const link = document.createElement("a");
-    link.download = "al-edu-whiteboard.png";
-    link.href = canvas.toDataURL("image/png");
-    link.click();
-  }
-
-  document.querySelectorAll("[data-tool]").forEach(button => {
-    button.addEventListener("click", () => {
-      tool = button.dataset.tool;
-      document.querySelectorAll("[data-tool]").forEach(item => {
-        const selected = item === button;
-        item.classList.toggle("selected", selected);
-        item.setAttribute("aria-pressed", String(selected));
-      });
-      canvas.style.cursor = tool === "eraser" ? "cell" : "crosshair";
-    });
-  });
-  sizeInput.addEventListener("input", () => { sizeValue.value = sizeInput.value + " px"; });
-  canvas.addEventListener("pointerdown", beginStroke);
-  canvas.addEventListener("pointermove", moveStroke);
-  canvas.addEventListener("pointerup", endStroke);
-  canvas.addEventListener("pointercancel", endStroke);
-  canvas.addEventListener("lostpointercapture", endStroke);
-  undoButton.addEventListener("click", undo);
-  redoButton.addEventListener("click", redo);
-  document.getElementById("saveBoard").addEventListener("click", save);
-  document.getElementById("newBoard").addEventListener("click", newBoard);
-  document.getElementById("clearBoard").addEventListener("click", clearBoard);
-  document.getElementById("exportPng").addEventListener("click", exportPng);
-  window.addEventListener("resize", resizeCanvas);
-  window.addEventListener("beforeunload", event => {
-    if (dirty) { event.preventDefault(); event.returnValue = ""; }
-  });
-  resizeCanvas();
-  if (!load()) snapshotHistory();
-  document.getElementById("boardStatus").textContent = "Bảng sẵn sàng";
+(()=>{"use strict";
+const $=id=>document.getElementById(id),DB="al-edu-v1-data",BK="al-edu-v1-whiteboard",VERSION=1;
+const state={spaces:[],resources:[],activeSpace:null};
+const statuses={unreviewed:"Chưa rà soát","source-linked":"Đã ghi nguồn",reviewed:"Đã rà soát",verified:"Đã xác minh",disputed:"Có tranh luận",deprecated:"Ngừng khuyến nghị"};
+const types={article:"Bài viết",book:"Sách",video:"Video",course:"Khóa học",dataset:"Bộ dữ liệu",standard:"Tiêu chuẩn",other:"Khác"};
+let toastTimer;
+function toast(s){$("toast").textContent=s;$("toast").classList.add("show");clearTimeout(toastTimer);toastTimer=setTimeout(()=>$("toast").classList.remove("show"),2400)}
+function saveData(){try{localStorage.setItem(DB,JSON.stringify({schemaVersion:VERSION,updatedAt:new Date().toISOString(),spaces:state.spaces,resources:state.resources}));$("saveState").textContent="Đã lưu trên thiết bị";return true}catch{$("saveState").textContent="Lỗi lưu";toast("Không lưu được. Hãy sao lưu dữ liệu và kiểm tra dung lượng.");return false}}
+function node(tag,cls,txt){const n=document.createElement(tag);if(cls)n.className=cls;if(txt!==undefined)n.textContent=txt;return n}
+function btn(txt,act,id){const b=node("button","",txt);b.type="button";b.dataset.action=act;b.dataset.id=id;return b}
+function empty(host,msg){host.replaceChildren(node("div","empty",msg))}
+function view(name){document.querySelectorAll(".view").forEach(v=>{v.hidden=v.id!=="view-"+name;v.classList.toggle("active",!v.hidden)});document.querySelectorAll("[data-view]").forEach(b=>b.classList.toggle("active",b.dataset.view===name));if(name==="board")requestAnimationFrame(resize)}
+function stats(){$("spaceCount").textContent=state.spaces.length;$("resourceCount").textContent=state.resources.length;$("reviewedCount").textContent=state.resources.filter(r=>["reviewed","verified"].includes(r.status)).length}
+function renderSpaces(){const host=$("spaceList"),q=$("spaceSearch").value.trim().toLocaleLowerCase("vi"),list=state.spaces.filter(s=>(s.name+" "+s.description+" "+s.domain).toLocaleLowerCase("vi").includes(q));host.replaceChildren();if(!list.length)return empty(host,state.spaces.length?"Không tìm thấy kết quả.":"Chưa có không gian. Hãy tạo không gian đầu tiên.");list.forEach(s=>{const c=node("article","space-card");c.append(node("h3","",s.name),node("p","",s.description||"Chưa có mô tả."));const m=node("div","meta");m.append(node("span","tag",s.domain||"Chưa phân lĩnh vực"),node("span","tag",state.resources.filter(r=>r.spaceId===s.id).length+" học liệu"));c.append(m);const a=node("div","card-actions");a.append(btn("Mở thư viện","open",s.id),btn("Sửa","edit-space",s.id),btn("Xóa","delete-space",s.id));c.append(a);host.append(c)})}
+function renderResources(){const host=$("resourceList"),q=$("resourceSearch").value.trim().toLocaleLowerCase("vi"),st=$("statusFilter").value,tp=$("typeFilter").value;const list=state.resources.filter(r=>(!st||r.status===st)&&(!tp||r.type===tp)&&(r.title+" "+r.author+" "+r.domain+" "+r.description).toLocaleLowerCase("vi").includes(q));host.replaceChildren();if(!list.length)return empty(host,state.resources.length?"Không có học liệu phù hợp bộ lọc.":"Thư viện đang trống. Hãy thêm học liệu có nguồn.");list.forEach(r=>{const c=node("article","resource-card"),main=node("div","");main.append(node("h3","",r.title),node("p","",r.description||"Chưa có mô tả."));const m=node("div","meta");m.append(node("span","tag",types[r.type]||"Khác"),node("span","tag",r.domain||"Chưa phân lĩnh vực"),node("span","status",statuses[r.status]||statuses.unreviewed));main.append(m);if(r.author)main.append(node("p","", "Tác giả / cơ quan: "+r.author));if(r.url){const a=node("a","",r.url);a.href=r.url;a.target="_blank";a.rel="noopener noreferrer";main.append(a)}const extra=[r.published?"Xuất bản: "+r.published:"",r.version?"Phiên bản: "+r.version:"",r.license?"Giấy phép: "+r.license:"",r.language?"Ngôn ngữ: "+r.language:""].filter(Boolean);if(extra.length)main.append(node("p","",extra.join(" · ")));const acts=node("div","resource-actions");acts.append(btn("Sửa","edit-resource",r.id),btn("Xóa","delete-resource",r.id));c.append(main,acts);host.append(c)})}
+function render(){stats();renderSpaces();renderResources()}
+function editSpace(s){$("spaceForm").reset();$("spaceId").value=s?.id||"";$("spaceName").value=s?.name||"";$("spaceDescription").value=s?.description||"";$("spaceDomain").value=s?.domain||"";$("spaceDialogTitle").textContent=s?"Sửa không gian":"Tạo không gian";$("spaceDialog").showModal()}
+function editResource(r){$("resourceForm").reset();$("resourceId").value=r?.id||"";const fields={title:"resourceTitle",type:"resourceType",domain:"resourceDomain",description:"resourceDescription",author:"resourceAuthor",language:"resourceLanguage",url:"resourceUrl",published:"resourcePublished",version:"resourceVersion",license:"resourceLicense",status:"resourceStatus"};Object.entries(fields).forEach(([k,id])=>$(id).value=r?.[k]??(k==="language"?"vi":k==="type"?"article":k==="status"?"unreviewed":""));$("resourceDialogTitle").textContent=r?"Sửa học liệu":"Thêm học liệu";$("resourceDialog").showModal()}
+function validUrl(v){if(!v)return true;try{return ["http:","https:"].includes(new URL(v).protocol)}catch{return false}}
+$("spaceForm").addEventListener("submit",e=>{e.preventDefault();const id=$("spaceId").value,name=$("spaceName").value.trim();if(!name)return;const obj={id:id||crypto.randomUUID(),name,description:$("spaceDescription").value.trim(),domain:$("spaceDomain").value.trim(),updatedAt:new Date().toISOString()},i=state.spaces.findIndex(s=>s.id===id);if(i<0)state.spaces.unshift(obj);else state.spaces[i]=obj;saveData();render();$("spaceDialog").close();toast("Đã lưu không gian.")});
+$("resourceForm").addEventListener("submit",e=>{e.preventDefault();const id=$("resourceId").value,url=$("resourceUrl").value.trim();if(!validUrl(url)){toast("Chỉ chấp nhận đường dẫn HTTP hoặc HTTPS.");return}const obj={id:id||crypto.randomUUID(),title:$("resourceTitle").value.trim(),type:$("resourceType").value,domain:$("resourceDomain").value.trim(),description:$("resourceDescription").value.trim(),author:$("resourceAuthor").value.trim(),language:$("resourceLanguage").value.trim(),url,published:$("resourcePublished").value,version:$("resourceVersion").value.trim(),license:$("resourceLicense").value.trim(),status:$("resourceStatus").value,spaceId:state.resources.find(r=>r.id===id)?.spaceId||state.activeSpace||null,updatedAt:new Date().toISOString()},i=state.resources.findIndex(r=>r.id===id);if(i<0)state.resources.unshift(obj);else state.resources[i]=obj;saveData();render();$("resourceDialog").close();toast("Đã lưu học liệu.")});
+document.querySelectorAll("[data-close]").forEach(b=>b.addEventListener("click",()=>$(b.dataset.close).close()));
+$("spaceList").addEventListener("click",e=>{const b=e.target.closest("button[data-action]");if(!b)return;const s=state.spaces.find(x=>x.id===b.dataset.id);if(!s)return;if(b.dataset.action==="edit-space")editSpace(s);if(b.dataset.action==="open"){state.activeSpace=s.id;view("library");$("resourceSearch").value="";toast("Đã mở thư viện học liệu.")}if(b.dataset.action==="delete-space"&&confirm("Xóa không gian này? Học liệu vẫn được giữ lại.")){state.spaces=state.spaces.filter(x=>x.id!==s.id);saveData();render() }});
+$("resourceList").addEventListener("click",e=>{const b=e.target.closest("button[data-action]");if(!b)return;const r=state.resources.find(x=>x.id===b.dataset.id);if(!r)return;if(b.dataset.action==="edit-resource")editResource(r);if(b.dataset.action==="delete-resource"&&confirm("Xóa học liệu này?")){state.resources=state.resources.filter(x=>x.id!==r.id);saveData();render()}});
+document.querySelectorAll("[data-view]").forEach(b=>b.addEventListener("click",()=>view(b.dataset.view)));$("addSpace").onclick=()=>editSpace();$("addResource").onclick=()=>editResource();
+$("spaceSearch").addEventListener("input",renderSpaces);["resourceSearch","statusFilter","typeFilter"].forEach(id=>$(id).addEventListener("input",renderResources));
+function boardData(){return{schemaVersion:1,updatedAt:new Date().toISOString(),strokes}}
+function saveBoardData(d){try{localStorage.setItem(BK,JSON.stringify(d));return true}catch{return false}}
+$("exportData").onclick=()=>{const data={application:"Al Edu",schemaVersion:VERSION,exportedAt:new Date().toISOString(),spaces:state.spaces,resources:state.resources,whiteboard:boardData()},blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"}),url=URL.createObjectURL(blob),a=node("a");a.href=url;a.download="al-edu-backup-"+new Date().toISOString().slice(0,10)+".json";a.click();URL.revokeObjectURL(url);toast("Đã tạo tệp sao lưu JSON.")};
+$("importData").addEventListener("change",async e=>{const f=e.target.files[0];if(!f)return;try{const d=JSON.parse(await f.text());if(d.application!=="Al Edu"||d.schemaVersion!==VERSION||!Array.isArray(d.spaces)||!Array.isArray(d.resources))throw Error("Sai định dạng hoặc phiên bản.");const ids=new Set();for(const s of d.spaces){if(!s||typeof s.id!=="string"||typeof s.name!=="string"||ids.has(s.id))throw Error("Dữ liệu không gian lỗi hoặc trùng mã.");ids.add(s.id)}const rids=new Set();for(const r of d.resources){if(!r||typeof r.id!=="string"||!r.title||rids.has(r.id)||!statuses[r.status]||!types[r.type]||!validUrl(r.url||""))throw Error("Dữ liệu học liệu không hợp lệ.");rids.add(r.id)}if(!confirm("Khôi phục sẽ thay thế thư viện hiện tại. Bạn muốn tiếp tục?"))return;state.spaces=d.spaces;state.resources=d.resources;if(d.whiteboard?.schemaVersion===1&&Array.isArray(d.whiteboard.strokes))saveBoardData(d.whiteboard);saveData();loadBoard();render();toast("Đã khôi phục dữ liệu.")}catch(err){toast("Không thể khôi phục: "+err.message)}finally{e.target.value=""}});
+/* Whiteboard */
+const canvas=$("board"),ctx=canvas.getContext("2d",{alpha:false});let strokes=[],history=[],hi=-1,tool="pen",drawing=false,pid=null,current=null,w=0,h=0,saveTimer;
+function resize(){const r=canvas.getBoundingClientRect();if(!r.width||!r.height)return;const ow=w,oh=h;w=r.width;h=r.height;if(ow&&oh&&(ow!==w||oh!==h))strokes.forEach(s=>s.points.forEach(p=>{p.x*=w/ow;p.y*=h/oh}));const dpr=Math.min(devicePixelRatio||1,2);canvas.width=Math.round(w*dpr);canvas.height=Math.round(h*dpr);draw()}
+function stroke(s){if(!s.points.length)return;ctx.save();ctx.globalCompositeOperation=s.tool==="eraser"?"destination-out":"source-over";ctx.strokeStyle=s.color;ctx.fillStyle=s.color;ctx.lineWidth=s.width;ctx.lineCap="round";ctx.lineJoin="round";ctx.beginPath();if(s.points.length===1){ctx.arc(s.points[0].x,s.points[0].y,s.width/2,0,Math.PI*2);ctx.fill()}else{s.points.forEach((p,i)=>i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y));ctx.stroke()}ctx.restore()}
+function draw(){if(!w||!h)return;ctx.setTransform(1,0,0,1,0,0);ctx.fillStyle="#fff";ctx.fillRect(0,0,canvas.width,canvas.height);ctx.setTransform(canvas.width/w,0,0,canvas.height/h,0,0);strokes.forEach(stroke);if(current)stroke(current);$("canvasHint").classList.toggle("hidden",strokes.length>0||!!current);$("undo").disabled=hi<=0;$("redo").disabled=hi<0||hi>=history.length-1}
+function snapshot(){history=history.slice(0,hi+1);history.push(JSON.stringify(strokes));if(history.length>40)history.shift();hi=history.length-1;draw()}
+function changed(){ $("boardStatus").textContent="Có thay đổi";clearTimeout(saveTimer);saveTimer=setTimeout(saveBoard,1100)}
+function saveBoard(){if(!saveBoardData(boardData())){toast("Không lưu được bảng.");return false}$("boardStatus").textContent="Đã lưu";return true}
+function loadBoard(){try{const d=JSON.parse(localStorage.getItem(BK)||"null");strokes=d?.schemaVersion===1&&Array.isArray(d.strokes)?d.strokes.filter(s=>s&&Array.isArray(s.points)&&typeof s.width==="number"&&["pen","eraser"].includes(s.tool)):[]}catch{strokes=[]}history=[];hi=-1;snapshot()}
+function pos(e){const r=canvas.getBoundingClientRect();return{x:Math.max(0,Math.min(r.width,e.clientX-r.left)),y:Math.max(0,Math.min(r.height,e.clientY-r.top))}}
+canvas.addEventListener("pointerdown",e=>{if(e.button!==undefined&&e.button!==0)return;e.preventDefault();canvas.setPointerCapture(e.pointerId);drawing=true;pid=e.pointerId;current={tool,color:$("inkColor").value,width:tool==="eraser"?Math.max(12,Number($("inkSize").value)*3):Number($("inkSize").value),points:[pos(e)]};draw()});
+canvas.addEventListener("pointermove",e=>{if(!drawing||e.pointerId!==pid)return;e.preventDefault();current.points.push(pos(e));draw()});
+function end(e){if(!drawing||e.pointerId!==pid)return;drawing=false;pid=null;if(current){strokes.push(current);current=null;snapshot();changed()}}
+canvas.addEventListener("pointerup",end);canvas.addEventListener("pointercancel",end);canvas.addEventListener("lostpointercapture",end);
+document.querySelectorAll("[data-tool]").forEach(b=>b.onclick=()=>{tool=b.dataset.tool;document.querySelectorAll("[data-tool]").forEach(x=>{x.classList.toggle("selected",x===b);x.setAttribute("aria-pressed",String(x===b))})});
+$("sizeValue").value="4 px";$("inkSize").oninput=e=>$("sizeValue").value=e.target.value+" px";$("undo").onclick=()=>{if(hi>0){strokes=JSON.parse(history[--hi]);draw();changed()}};$("redo").onclick=()=>{if(hi<history.length-1){strokes=JSON.parse(history[++hi]);draw();changed()}};
+$("saveBoard").onclick=()=>{if(saveBoard())toast("Đã lưu bảng.")};$("clearBoard").onclick=()=>{if(strokes.length&&confirm("Xóa toàn bộ nét vẽ?")){strokes=[];snapshot();changed()}};
+$("exportPng").onclick=()=>{const a=node("a");a.download="al-edu-whiteboard.png";a.href=canvas.toDataURL("image/png");a.click()};
+window.addEventListener("resize",resize);window.addEventListener("beforeunload",e=>{if(state.dirty){e.preventDefault();e.returnValue=""}});
+try{const d=JSON.parse(localStorage.getItem(DB)||"null");if(d?.schemaVersion===VERSION&&Array.isArray(d.spaces)&&Array.isArray(d.resources)){state.spaces=d.spaces;state.resources=d.resources}}catch{toast("Không đọc được dữ liệu cũ. Hãy khôi phục từ bản sao lưu nếu có.")}
+loadBoard();render();resize();$("saveState").textContent="Lưu cục bộ · chưa đồng bộ đám mây";
 })();
