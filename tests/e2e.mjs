@@ -43,6 +43,7 @@ try {
   await page.getByText("Kiểm thử V1.1", { exact: true }).waitFor();
 
   // Create a source-linked resource and exercise search/filter.
+  await page.locator('[data-view="library"]').click();
   await page.locator("#addResource").click();
   await page.locator("#resourceTitle").fill("Tài liệu kiểm thử");
   await page.locator("#resourceDomain").fill("Giáo dục");
