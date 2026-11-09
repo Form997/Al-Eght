@@ -2,43 +2,43 @@
 
 **Al Edu** là nền tảng giáo dục số mở, hướng tới mở rộng khả năng tiếp cận tri thức, hỗ trợ dạy học và học tập tương tác trên nhiều lĩnh vực.
 
-> Phiên bản hiện tại: **V1.0 – Foundation**
->
-> Trạng thái: **Khởi tạo nền tảng; chưa phải bản phát hành ổn định.**
+> **Phiên bản:** V1.0 Foundation – đang trong giai đoạn kiểm thử.  
+> **Kiến trúc:** website tĩnh; dữ liệu lưu trên trình duyệt, chưa có máy chủ hoặc đồng bộ tài khoản.
 
-## Định hướng
-- Giáo dục phổ quát, lấy người học làm trung tâm.
-- Tiếp cận bình đẳng, thiết kế đa thiết bị và hỗ trợ công nghệ trợ giúp.
-- Tri thức có cấu trúc, có nguồn gốc và có thể kiểm chứng.
-- Bảo toàn tính chính xác của khái niệm, ngữ cảnh, đơn vị và thứ nguyên.
-- Phần mềm có chức năng thực, có kiểm thử, tài liệu và khả năng bảo trì.
-- Kiến trúc mở, không phụ thuộc bắt buộc vào một nhà cung cấp AI.
-
-## Phạm vi V1.0
-1. Nền tảng giao diện và điều hướng.
-2. Không gian học tập cơ bản.
-3. Quản lý học liệu và siêu dữ liệu.
-4. Bảng tương tác: viết, vẽ, xóa, hoàn tác/làm lại và lưu.
-5. Hồ sơ nguồn tri thức và lịch sử cập nhật.
-6. Nền tảng về khả năng tiếp cận, bảo mật và kiểm thử.
-
-AI giáo viên ảo, nhận diện giọng nói, lớp học trực tuyến và hình học 3D nâng cao không thuộc phạm vi nghiệm thu V1.0. Kiến trúc có thể mở rộng để tích hợp về sau.
-
-## Tài liệu
-- [Tầm nhìn và nguyên tắc](docs/vision.md)
-- [Yêu cầu sản phẩm V1.0](docs/requirements.md)
-- [Mô hình giáo dục và tri thức](docs/educational-framework.md)
-- [Kiến trúc hệ thống](docs/architecture.md)
-- [Danh mục nguồn đầu nguồn](docs/source-register.md)
-- [Kế hoạch kiểm thử và nghiệm thu](docs/testing.md)
-- [Hướng dẫn sử dụng bảng tương tác](docs/user-guide.md)
+## Phạm vi V1 hiện có
+- Không gian học tập: tạo, sửa, xóa và tìm kiếm.
+- Thư viện học liệu: mô tả, loại, lĩnh vực, tác giả/cơ quan, ngôn ngữ, nguồn, ngày xuất bản, phiên bản, giấy phép và trạng thái bằng chứng.
+- Bảng tương tác: bút, tẩy, màu, độ dày, hoàn tác/làm lại, lưu và xuất PNG.
+- Sao lưu và khôi phục dữ liệu không gian, học liệu và bảng bằng JSON có phiên bản.
+- Giao diện đáp ứng cho màn hình lớn và điện thoại.
 
 ## Chạy ứng dụng
-Ứng dụng V1.0 là website tĩnh, không cần cài đặt gói phụ thuộc. Mở `index.html` để chạy thử hoặc triển khai bằng GitHub Pages. Dữ liệu bảng được lưu cục bộ trong trình duyệt.
-- [Nhật ký thay đổi](CHANGELOG.md)
+Không cần cài thư viện. Mở index.html bằng trình duyệt hoặc triển khai thư mục gốc qua GitHub Pages.
 
-## Nguyên tắc phát triển
-Mọi tính năng phải có mục tiêu giáo dục, yêu cầu chức năng, trạng thái dữ liệu, xử lý lỗi, tiêu chí tiếp cận và kiểm thử tương ứng. Không công bố chức năng hoàn thành nếu chưa được kiểm chứng.
+## Triển khai GitHub Pages
+1. Vào Settings → Pages của kho mã.
+2. Ở Build and deployment → Source, chọn GitHub Actions.
+3. Mở tab Actions, chờ workflow Deploy Al Edu V1 to GitHub Pages chạy thành công.
+4. Chỉ công bố địa chỉ website sau khi GitHub xác nhận triển khai thành công.
 
-## Trạng thái
-Kho mã nguồn đang ở giai đoạn thiết lập hồ sơ nền tảng. Các chức năng sản phẩm sẽ được triển khai sau khi đặc tả và kiến trúc được rà soát.
+## Dữ liệu và giới hạn
+- Dữ liệu nằm trong localStorage của trình duyệt. Xóa dữ liệu trình duyệt có thể làm mất dữ liệu Al Edu.
+- Sao lưu JSON là cách chuyển dữ liệu giữa thiết bị; nên lưu bản sao định kỳ ở nơi an toàn.
+- Ứng dụng không tự thẩm định nội dung nguồn, giấy phép hoặc tính đúng đắn của học liệu.
+- Không có đăng nhập, phân quyền nhiều người, đồng bộ đám mây hay cộng tác trong V1.
+- Không nhập mật khẩu, dữ liệu nhạy cảm hoặc bí mật vào bản chạy cục bộ.
+
+## Trạng thái bằng chứng
+Các nhãn Chưa rà soát, Đã ghi nguồn, Đã rà soát, Đã xác minh, Có tranh luận và Ngừng khuyến nghị là trạng thái biên tập do người dùng khai báo. Ứng dụng không tự xác minh.
+
+## Tài liệu
+- docs/vision.md – Tầm nhìn
+- docs/requirements.md – Yêu cầu sản phẩm
+- docs/educational-framework.md – Khung giáo dục
+- docs/architecture.md – Kiến trúc
+- docs/source-register.md – Danh mục nguồn
+- docs/testing.md – Kiểm thử và nghiệm thu
+- docs/user-guide.md – Hướng dẫn sử dụng
+- CHANGELOG.md – Nhật ký thay đổi
+
+Ưu tiên nguồn đầu nguồn, tiêu chuẩn chính thức; phân biệt dữ kiện, diễn giải và giả thuyết; bảo toàn đơn vị, thứ nguyên và ngữ cảnh chuyên ngành. Không tuyên bố tính năng hoàn tất hoặc đạt chuẩn tiếp cận nếu chưa có bằng chứng kiểm thử.
