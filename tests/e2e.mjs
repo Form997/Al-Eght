@@ -42,6 +42,25 @@ try {
   await page.reload();
   await page.getByText("Kiểm thử V1.1", { exact: true }).waitFor();
 
+  // A failed localStorage write must not close the form or pretend the edit was saved.
+  await page.locator('#spaceList button[data-action="edit-space"]').click();
+  await page.locator("#spaceName").fill("Thay đổi chưa lưu");
+  await page.evaluate(() => {
+    window.__originalStorageSetItem = Storage.prototype.setItem;
+    Storage.prototype.setItem = function (key, value) {
+      if (key === "al-edu-v1-data") throw new DOMException("Quota exceeded", "QuotaExceededError");
+      return window.__originalStorageSetItem.call(this, key, value);
+    };
+  });
+  await page.locator("#spaceForm button[type=submit]").click();
+  assert.equal(await page.locator("#spaceDialog").evaluate(el => el.open), true);
+  assert.equal(await page.locator("#spaceName").inputValue(), "Thay đổi chưa lưu");
+  assert.match(await page.locator("#saveState").textContent(), /Lỗi lưu/);
+  assert.match(await page.locator("#toast").textContent(), /Lưu thất bại/);
+  await page.evaluate(() => { Storage.prototype.setItem = window.__originalStorageSetItem; });
+  await page.locator("#spaceForm button[type=submit]").click();
+  await page.getByText("Thay đổi chưa lưu", { exact: true }).waitFor();
+
   // Create a source-linked resource and exercise search/filter.
   await page.locator('[data-view="library"]').click();
   await page.locator("#addResource").click();
